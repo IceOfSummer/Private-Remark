@@ -21,10 +21,17 @@
     <!-- Product and plugin compatibility requirements.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.java</depends>
 
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-
+        <editor.linePainter implementation="io.github.iceofsummer.privateremark.core.RemarkPainter"/>
     </extensions>
+    <actions>
+        <action id="io.github.iceofsummer.privateremark.core.AddPrivateRemarkAction" class="io.github.iceofsummer.privateremark.core.AddPrivateRemarkAction"
+                text="Pop Dialog Action" description="Demo">
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+        </action>
+    </actions>
 </idea-plugin>

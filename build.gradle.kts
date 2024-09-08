@@ -8,7 +8,9 @@ group = "io.github.iceofsummer"
 version = "1.0-SNAPSHOT"
 
 repositories {
-    mavenCentral()
+    maven{ url=uri("https://maven.aliyun.com/repository/public") }
+    maven{ url=uri("https://maven.aliyun.com/repository/google") }
+//    mavenCentral()
 }
 
 // Configure Gradle IntelliJ Plugin
@@ -17,7 +19,7 @@ intellij {
     version.set("2023.2.6")
     type.set("IC") // Target IDE Platform
 
-    plugins.set(listOf(/* Plugin Dependencies */))
+    plugins.set(listOf("com.intellij.java"))
 }
 
 tasks {
