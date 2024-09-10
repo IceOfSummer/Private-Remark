@@ -5,10 +5,6 @@ package io.github.iceofsummer.privateremark.bean
  */
 data class Remark(
     /**
-     * 父容器指示器
-     */
-    var parentIndicator: ParentIndicator? = null,
-    /**
      * 相对于父代码块的偏移, 如果没有父容器，则从文档开始算
      */
     var startOffsetInParent: Int = 0,
@@ -20,6 +16,14 @@ data class Remark(
      * 备注内容
      */
     var content: String = "",
+    /**
+     * 父容器指示器
+     */
+    var parentIndicator: ParentIndicator? = null,
+    /**
+     * 当前行的内容
+     */
+    var lineContent: String = ""
 )
 
 data class ParentIndicator(

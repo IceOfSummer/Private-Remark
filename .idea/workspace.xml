@@ -4,14 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="12324537-8728-4911-963f-64f4eb67fe49" name="Changes" comment="init project">
-      <change afterPath="$PROJECT_DIR$/src/main/java/io/github/iceofsummer/privateremark/AddPrivateRemarkAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="12324537-8728-4911-963f-64f4eb67fe49" name="Changes" comment="feat: 完成基础备注插入功能">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.run/Run IDE with Plugin.run.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.run/Run IDE with Plugin.run.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/github/iceofsummer/privateremark/bean/Remark.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/github/iceofsummer/privateremark/bean/Remark.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/github/iceofsummer/privateremark/core/AddPrivateRemarkAction.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/github/iceofsummer/privateremark/core/RemarkPainter.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/github/iceofsummer/privateremark/core/bridge/AddPrivateRemarkAction.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/github/iceofsummer/privateremark/core/bridge/AddPrivateRemarkAction.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/github/iceofsummer/privateremark/core/bridge/FileEditorManagerListenerImpl.java.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/github/iceofsummer/privateremark/core/bridge/FileEditorManagerListenerImpl.java.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/github/iceofsummer/privateremark/svc/RemarkService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/github/iceofsummer/privateremark/svc/RemarkService.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/io/github/iceofsummer/privateremark/svc/impl/RemarkServiceImpl.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/io/github/iceofsummer/privateremark/svc/impl/InMemoryRemarkServiceImpl.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -46,10 +49,11 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Action" />
-        <option value="Class" />
         <option value="Kotlin Data Class" />
         <option value="Kotlin Interface" />
+        <option value="Action" />
+        <option value="Class" />
+        <option value="Kotlin Object" />
         <option value="Kotlin Class" />
       </list>
     </option>
@@ -139,7 +143,10 @@
       <workItem from="1725718444892" duration="7652000" />
       <workItem from="1725762662905" duration="3945000" />
       <workItem from="1725777039643" duration="11582000" />
-      <workItem from="1725800051546" duration="3262000" />
+      <workItem from="1725800051546" duration="10482000" />
+      <workItem from="1725888842460" duration="9608000" />
+      <workItem from="1725973182604" duration="6431000" />
+      <workItem from="1725979692070" duration="2500000" />
     </task>
     <task id="LOCAL-00001" summary="init project">
       <option name="closed" value="true" />
@@ -149,7 +156,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725694159550</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="feat: 完成基础备注插入功能">
+      <option name="closed" value="true" />
+      <created>1725803488834</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1725803488834</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -168,15 +183,16 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="init project" />
-    <option name="LAST_COMMIT_MESSAGE" value="init project" />
+    <MESSAGE value="feat: 完成基础备注插入功能" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 完成基础备注插入功能" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/src/main/java/io/github/iceofsummer/privateremark/svc/impl/RemarkServiceImpl.kt</url>
-          <line>36</line>
-          <option name="timeStamp" value="2" />
+          <url>file://$PROJECT_DIR$/src/main/java/io/github/iceofsummer/privateremark/util/RemarkUtils.kt</url>
+          <line>19</line>
+          <option name="timeStamp" value="56" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

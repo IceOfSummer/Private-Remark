@@ -26,12 +26,26 @@
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-        <editor.linePainter implementation="io.github.iceofsummer.privateremark.core.RemarkPainter"/>
+        <editorFactoryListener implementation="io.github.iceofsummer.privateremark.core.bridge.EditorFactoryListenerImpl"/>
     </extensions>
     <actions>
-        <action id="io.github.iceofsummer.privateremark.core.AddPrivateRemarkAction" class="io.github.iceofsummer.privateremark.core.AddPrivateRemarkAction"
+        <action id="io.github.iceofsummer.privateremark.core.bridge.AddPrivateRemarkAction" class="io.github.iceofsummer.privateremark.core.bridge.AddPrivateRemarkAction"
                 text="Pop Dialog Action" description="Demo">
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>
+
+        <action id="io.github.iceofsummer.privateremark.core.dev.DevClearAction"
+                class="io.github.iceofsummer.privateremark.core.dev.DevClearAction" text="Clear All Remark"
+                description="Clear all remark">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
+
+        <action id="io.github.iceofsummer.privateremark.core.dev.DevDisplayAction"
+                class="io.github.iceofsummer.privateremark.core.dev.DevDisplayAction" text="Display Data"
+                description="Display data">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
     </actions>
+
+
 </idea-plugin>
