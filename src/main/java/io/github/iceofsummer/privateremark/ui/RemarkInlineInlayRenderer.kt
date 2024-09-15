@@ -13,9 +13,9 @@ import java.awt.Font
 import java.awt.Graphics
 import java.awt.Rectangle
 
-class RemarkInlineInlayRenderer(private val editor: Editor, private val content: String) : EditorCustomElementRenderer {
+class RemarkInlineInlayRenderer(private val editor: Editor, val content: String) : EditorCustomElementRenderer {
 
-    private val width = editor.contentComponent.getFontMetrics(getFont(editor)).stringWidth(content)
+    private val width: Int = editor.contentComponent.getFontMetrics(getFont(editor)).stringWidth(content)
 
     /**
      * 鼠标是否聚焦
@@ -51,5 +51,6 @@ class RemarkInlineInlayRenderer(private val editor: Editor, private val content:
         editor.contentComponent.cursor = Cursor.getDefaultCursor()
         inlay.update()
     }
+
 
 }

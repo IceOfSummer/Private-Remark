@@ -5,6 +5,8 @@ import com.intellij.openapi.editor.Inlay
 import com.intellij.openapi.editor.event.EditorMouseEvent
 import com.intellij.openapi.editor.event.EditorMouseListener
 import com.intellij.openapi.editor.event.EditorMouseMotionListener
+import com.intellij.openapi.ui.popup.JBPopupFactory
+import io.github.iceofsummer.privateremark.ui.RemarkDisplayPanel
 import io.github.iceofsummer.privateremark.ui.RemarkInlineInlayRenderer
 
 /**
@@ -29,6 +31,7 @@ class RemarkInlayListenerService : EditorMouseMotionListener, EditorMouseListene
         if (inlay != null) {
             val renderer = inlay.renderer
             if (renderer is RemarkInlineInlayRenderer) {
+                @Suppress("UNCHECKED_CAST")
                 val remarkInlineInlayRendererInlay = inlay as Inlay<RemarkInlineInlayRenderer>
                 renderer.onHovered(inlay)
 
@@ -40,6 +43,18 @@ class RemarkInlayListenerService : EditorMouseMotionListener, EditorMouseListene
     }
 
     override fun mouseClicked(event: EditorMouseEvent) {
-        println("TODO: clicked")
+        val inlay = event.inlay ?: return
+        val renderer = inlay.renderer
+        if (renderer !is RemarkInlineInlayRenderer) {
+            return
+        }
+        val displayPanel = RemarkDisplayPanel()
+        displayPanel.contentPanel.text = renderer.content
+
+        JBPopupFactory.getInstance()
+            .createComponentPopupBuilder(displayPanel.root, null)
+            .setCancelOnClickOutside(true)
+            .createPopup()
+            .showInBestPositionFor(inlay.editor)
     }
 }
