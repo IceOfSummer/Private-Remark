@@ -13,6 +13,9 @@ import java.awt.Font
 import java.awt.Graphics
 import java.awt.Rectangle
 
+/**
+ * 显示备注内容的内嵌组件
+ */
 class RemarkInlineInlayRenderer(private val editor: Editor, val content: String) : EditorCustomElementRenderer {
 
     private val width: Int = editor.contentComponent.getFontMetrics(getFont(editor)).stringWidth(content)

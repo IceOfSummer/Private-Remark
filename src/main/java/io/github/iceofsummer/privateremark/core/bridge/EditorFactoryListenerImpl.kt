@@ -9,6 +9,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
 import com.intellij.psi.PsiNamedElement
+import com.intellij.refactoring.suggested.endOffset
 import com.intellij.refactoring.suggested.startOffset
 import com.intellij.util.DocumentUtil
 import io.github.iceofsummer.privateremark.bean.ParentIndicator
@@ -75,7 +76,12 @@ class EditorFactoryListenerImpl : EditorFactoryListener {
 
         val updated = mutableSetOf<Remark>()
         for (inlay in inlays) {
-            updated.add(RemarkUtils.generateRemark(inlay.first.content, editor.document.getLineNumber(inlay.second.offset), editor, psi))
+            try {
+                updated.add(RemarkUtils.generateRemark(inlay.first.content, editor.document.getLineNumber(inlay.second.offset), editor, psi))
+            } catch (e: IndexOutOfBoundsException) {
+                // content is changed by other process.
+                remarkService.invalidFileRemark(editor.virtualFile, inlay.first.lineNumber)
+            }
         }
         if (updated.isNotEmpty()) {
             remarkService.updateFileRemarks(editor.virtualFile, updated)
@@ -103,9 +109,13 @@ class EditorFactoryListenerImpl : EditorFactoryListener {
      */
     private fun tryFixRemark(remark: Remark, indicator: ParentIndicator, psi: PsiElement, document: Document): Remark? {
         val holder = findTargetHolder(indicator.classname, indicator.name, psi) ?: return null
+        val oldOffset = holder.startOffset + remark.startOffsetInParent
+        if (oldOffset >= psi.endOffset) {
+            return null
+        }
+        val newLineNumber = document.getLineNumber(oldOffset)
 
         val fixedRemark = remarkService.cloneRemark(remark)
-        val newLineNumber = document.getLineNumber(holder.startOffset + remark.startOffsetInParent)
 
         // 将脏数据保存，页面更新后统一处理.
         fixedRemark.startOffsetInParent = document.getLineEndOffset(newLineNumber) - holder.startOffset

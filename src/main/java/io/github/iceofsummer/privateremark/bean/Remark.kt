@@ -23,8 +23,13 @@ data class Remark(
     /**
      * 当前行的内容
      */
-    var lineContent: String = ""
+    var lineContent: String = "",
+    /**
+     * 版本控制，用于备注失效时提供 review 功能
+     */
+    var vcs: RemarkVcs? = null
 )
+
 
 data class ParentIndicator(
     /**

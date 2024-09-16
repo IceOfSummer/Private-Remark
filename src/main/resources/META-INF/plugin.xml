@@ -22,11 +22,14 @@
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.java</depends>
+    <depends>Git4Idea</depends>
+    <depends>Subversion</depends>
 
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
         <editorFactoryListener implementation="io.github.iceofsummer.privateremark.core.bridge.EditorFactoryListenerImpl"/>
+        <editorNotificationProvider implementation="io.github.iceofsummer.privateremark.core.bridge.EditorNotificationProviderImpl"/>
     </extensions>
     <actions>
         <action id="io.github.iceofsummer.privateremark.core.bridge.AddPrivateRemarkAction" class="io.github.iceofsummer.privateremark.core.bridge.AddPrivateRemarkAction"

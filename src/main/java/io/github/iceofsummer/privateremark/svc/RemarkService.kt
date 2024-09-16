@@ -28,6 +28,8 @@ interface RemarkService {
      */
     fun resolveRemarks(file: VirtualFile): Set<Remark>
 
+    fun resolveInvalidRemarks(file: VirtualFile): Set<Remark>
+
     /**
      * 获取某个文件上的备注
      * @param file 文件路径

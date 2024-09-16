@@ -1,5 +1,6 @@
 package io.github.iceofsummer.privateremark.svc.impl
 
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
@@ -40,6 +41,10 @@ object InMemoryRemarkServiceImpl: RemarkService {
 
     override fun resolveRemarks(file: VirtualFile): Set<Remark> {
         return remarksMap.get(file.hashKey) ?: emptySet()
+    }
+
+    override fun resolveInvalidRemarks(file: VirtualFile): Set<Remark> {
+        return invalidRemarks.get(file.hashKey) ?: emptySet()
     }
 
     override fun resolveFileRemark(file: VirtualFile, lineNumber: Int): Remark? {

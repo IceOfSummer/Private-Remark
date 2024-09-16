@@ -3,7 +3,10 @@ package io.github.iceofsummer.privateremark.core.dev
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import io.github.iceofsummer.privateremark.svc.impl.InMemoryRemarkServiceImpl
+import com.intellij.openapi.wm.ToolWindowManager
+import io.github.iceofsummer.privateremark.ui.InvalidRemarkToolWindow
+import java.util.function.Supplier
+import git4idea.repo.GitRepositoryManager;
 
 class DevDisplayAction : AnAction() {
 
@@ -12,8 +15,14 @@ class DevDisplayAction : AnAction() {
     }
 
     override fun actionPerformed(e: AnActionEvent) {
-        println(InMemoryRemarkServiceImpl.remarksMap)
-        println(InMemoryRemarkServiceImpl.invalidRemarks)
+//        val toolWindowManager = ToolWindowManager.getInstance(e.project ?: return)
+//        val toolWindow = toolWindowManager.registerToolWindow("Invalid", {
+//            stripeTitle = Supplier<String> { "test" };
+//        })
+//
+//        val contentManager = toolWindow.contentManager
+//        val createContent = contentManager.factory.createContent(InvalidRemarkToolWindow(), "TestTab", true)
+//        contentManager.addContent(createContent)
     }
 
     override fun update(e: AnActionEvent) {

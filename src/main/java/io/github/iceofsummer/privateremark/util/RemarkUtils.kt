@@ -8,6 +8,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.suggested.startOffset
 import io.github.iceofsummer.privateremark.bean.ParentIndicator
 import io.github.iceofsummer.privateremark.bean.Remark
+import io.github.iceofsummer.privateremark.bean.RemarkVcs
+import io.github.iceofsummer.privateremark.svc.factory.VcsBridgeFactory
 
 object RemarkUtils {
 
@@ -31,6 +33,7 @@ object RemarkUtils {
                 )
             }
         }
+
         return Remark(
             startOffsetInParent,
             lineNumber,
@@ -38,8 +41,16 @@ object RemarkUtils {
             indicator,
             doc.getText(
                 TextRange(doc.getLineStartOffset(lineNumber), lineEnd)
-            )
+            ),
+            tryBuildRemarkVcs(editor)
         )
+    }
+
+    private fun tryBuildRemarkVcs(editor: Editor): RemarkVcs? {
+        val project = editor.project ?: return null
+        val vcs = VcsBridgeFactory.getInstance(project, editor.virtualFile) ?: return null
+        val reversion = vcs.getReversion(editor.virtualFile) ?: return null
+        return RemarkVcs(vcs.getType(), reversion)
     }
 
 
