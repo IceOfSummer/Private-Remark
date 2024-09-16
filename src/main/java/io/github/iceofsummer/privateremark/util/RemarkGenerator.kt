@@ -1,49 +1,32 @@
 package io.github.iceofsummer.privateremark.util
 
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.PsiFile
-import com.intellij.psi.PsiNamedElement
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.refactoring.suggested.startOffset
-import io.github.iceofsummer.privateremark.bean.ParentIndicator
-import io.github.iceofsummer.privateremark.bean.Remark
-import io.github.iceofsummer.privateremark.bean.RemarkVcs
+import com.intellij.openapi.vfs.VirtualFile
+import io.github.iceofsummer.privateremark.bean.po.RemarkPO
+import io.github.iceofsummer.privateremark.bean.po.RemarkVcs
 import io.github.iceofsummer.privateremark.svc.factory.VcsBridgeFactory
+import java.nio.file.Paths
 
-object RemarkGenerator {
+object RemarkUtils {
 
-    fun generateRemark(content: String, lineNumber: Int, editor: Editor, psi: PsiFile?): Remark {
-        var indicator: ParentIndicator? = null
+
+    fun generateRemarkPO(content: String, lineNumber: Int, editor: Editor): RemarkPO {
         val doc = editor.document
         val lineEnd = doc.getLineEndOffset(lineNumber)
-        var startOffsetInParent = editor.caretModel.offset
 
-        if (psi != null) {
-            val provider = psi.viewProvider
-
-            val node = provider.findElementAt(editor.caretModel.offset)
-            val parent = PsiTreeUtil.getParentOfType(node, PsiNamedElement::class.java)
-
-            parent?.name?.let { name ->
-                startOffsetInParent = lineEnd - parent.startOffset - 1
-                indicator = ParentIndicator(
-                    parent.javaClass.name,
-                    name
-                )
-            }
-        }
-
-        return Remark(
-            System.currentTimeMillis().toString() + fillZero(lineNumber),
-            startOffsetInParent,
+        // TODO: allow non project file.
+        val project = editor.project ?: throw IllegalStateException("Non project files")
+        val basePath = project.basePath ?: throw IllegalStateException("Could not find project root path")
+        return RemarkPO(
+            -1,
+            toRelativePath(basePath, editor.virtualFile.path), // TODO: to relative path
             lineNumber,
             content,
-            indicator,
             doc.getText(
                 TextRange(doc.getLineStartOffset(lineNumber), lineEnd)
-            ),
-            tryBuildRemarkVcs(editor)
+            )
         )
     }
 
@@ -51,7 +34,7 @@ object RemarkGenerator {
         val project = editor.project ?: return null
         val vcs = VcsBridgeFactory.getInstance(project, editor.virtualFile) ?: return null
         val reversion = vcs.getReversion(editor.virtualFile) ?: return null
-        return RemarkVcs(vcs.getType(), reversion)
+        return RemarkVcs(-1, vcs.getType(), reversion)
     }
 
     /**
@@ -65,5 +48,20 @@ object RemarkGenerator {
         return base.toString()
     }
 
+    /**
+     * 将绝对路径转化为相对路径
+     * @throws [IllegalArgumentException] 无法找到相对路径
+     */
+    fun toRelativePath(root: String, absolutePath: String): String {
+        val target = Paths.get(absolutePath)
+        val base = Paths.get(root)
+        return base.relativize(target).toString()
+    }
+
+    fun toRelativePath(root: Project?, absolutePath: String) : String{
+        root ?: return absolutePath
+        val base = root.basePath ?: return absolutePath
+        return toRelativePath(base, absolutePath)
+    }
 
 }

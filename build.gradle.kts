@@ -1,8 +1,26 @@
+import org.jetbrains.kotlin.gradle.internal.Kapt3GradleSubplugin.Companion.isUseK2
+
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "1.9.25"
     id("org.jetbrains.intellij") version "1.17.4"
 }
+
+sourceSets {
+    main {
+        resources {
+            srcDir("src/main/resources")
+            srcDir("src/main/java")
+
+            include("**/*")
+            exclude("**/*.kt")
+            exclude("**/*.java")
+            exclude("**/*.form")
+        }
+    }
+}
+
+
 
 group = "io.github.iceofsummer"
 version = "1.0-SNAPSHOT"
@@ -20,6 +38,18 @@ intellij {
     type.set("IC") // Target IDE Platform
 
     plugins.set(listOf("com.intellij.java", "Git4Idea", "Subversion"))
+}
+
+dependencies {
+    implementation("org.xerial:sqlite-jdbc:3.46.1.0") {
+        exclude(group = "org.slf4j", module = "slf4j-api")
+    }
+    implementation("com.zaxxer:HikariCP:6.0.0") {
+        exclude(group = "org.slf4j", module = "slf4j-api")
+    }
+    implementation("org.mybatis:mybatis:3.5.16") {
+        exclude(group = "org.slf4j", module = "slf4j-api")
+    }
 }
 
 tasks {
@@ -45,5 +75,10 @@ tasks {
 
     publishPlugin {
         token.set(System.getenv("PUBLISH_TOKEN"))
+    }
+
+    processResources {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        includeEmptyDirs = false
     }
 }

@@ -1,7 +1,7 @@
 package io.github.iceofsummer.privateremark.svc.impl
 
 import com.intellij.openapi.vfs.VirtualFile
-import io.github.iceofsummer.privateremark.bean.VcsType
+import io.github.iceofsummer.privateremark.bean.po.RemarkVcs
 import io.github.iceofsummer.privateremark.svc.VcsBridge
 import org.jetbrains.idea.svn.SvnVcs
 
@@ -13,8 +13,8 @@ class SvnVcsBridge(private val svnVcs: SvnVcs) : VcsBridge {
         return info.revision.number.toString()
     }
 
-    override fun getType(): VcsType {
-        return VcsType.SVN
+    override fun getType(): RemarkVcs.VcsType {
+        return RemarkVcs.VcsType.SVN
     }
 
 

@@ -14,23 +14,24 @@ import com.intellij.refactoring.suggested.startOffset
 import com.intellij.util.DocumentUtil
 import io.github.iceofsummer.privateremark.bean.ParentIndicator
 import io.github.iceofsummer.privateremark.bean.Remark
+import io.github.iceofsummer.privateremark.bean.po.RemarkPO
 import io.github.iceofsummer.privateremark.core.RemarkInlayCoordinator
-import io.github.iceofsummer.privateremark.svc.RemarkService
+import io.github.iceofsummer.privateremark.svc.RemarkServiceV2
 import io.github.iceofsummer.privateremark.svc.ServiceFactory
-import io.github.iceofsummer.privateremark.util.RemarkGenerator
+import io.github.iceofsummer.privateremark.util.RemarkUtils
 
 /**
  * 监听编辑器打开和关闭事件，当打开时显示所有备注，关闭时保存最后的位置。
  */
 class EditorFactoryListenerImpl : EditorFactoryListener {
 
-    private val remarkService = ServiceFactory.getService(RemarkService::class)
 
 
     override fun editorCreated(event: EditorFactoryEvent) {
+        val remarkService = ServiceFactory.getService(RemarkServiceV2::class)
         val editor = event.editor
         val file = editor.virtualFile
-        val remarks = remarkService.resolveRemarks(file)
+        val remarks = remarkService.resolveAllRemarks(RemarkUtils.toRelativePath(editor.project, file.path))
         if (remarks.isEmpty()) {
             return
         }
@@ -39,28 +40,12 @@ class EditorFactoryListenerImpl : EditorFactoryListener {
         val psi = resolved.second
 
         for (remark in remarks) {
-            val indicator = remark.parentIndicator
+//            val indicator = remark.parentIndicator
             val currentText = editor.document.getText(DocumentUtil.getLineTextRange(editor.document, remark.lineNumber))
 
-            if (currentText != remark.lineContent) {
+            if (currentText != remark.currentLineContent) {
                 // content mismatch
-                if (psi == null || indicator == null) {
-                    remarkService.invalidFileRemark(file, remark.lineNumber)
-                    continue
-                }
-
-                val fixed = tryFixRemark(remark, indicator, psi, editor.document)
-                if (fixed == null) {
-                    remarkService.invalidFileRemark(file, remark.lineNumber)
-                    continue
-                }
-                remarkService.updateFileRemark(file, remark.lineNumber, fixed)
-                RemarkInlayCoordinator.displayRemark(editor, fixed, editor.document)
-                continue
-            }
-            if (indicator == null) {
-                RemarkInlayCoordinator.displayRemark(editor, remark, editor.document)
-                continue
+                // TODO: Try fix automatically.
             }
             RemarkInlayCoordinator.displayRemark(editor, remark, editor.document)
         }
@@ -68,23 +53,23 @@ class EditorFactoryListenerImpl : EditorFactoryListener {
     }
 
     override fun editorReleased(event: EditorFactoryEvent) {
-        val inlays = RemarkInlayCoordinator.getAndDeleteInlays(event.editor.virtualFile) ?: return
-        val editor = event.editor
-        val resolved = resolveRequiredParam(event) ?: return
-        val psi = resolved.second
-
-        val updated = mutableSetOf<Remark>()
-        for (inlay in inlays) {
-            try {
-                updated.add(RemarkGenerator.generateRemark(inlay.first.content, editor.document.getLineNumber(inlay.second.offset), editor, psi))
-            } catch (e: IndexOutOfBoundsException) {
-                // content is changed by other process.
-                remarkService.invalidFileRemark(editor.virtualFile, inlay.first.lineNumber)
-            }
-        }
-        if (updated.isNotEmpty()) {
-            remarkService.updateFileRemarks(editor.virtualFile, updated)
-        }
+//        val inlays = RemarkInlayCoordinator.getAndDeleteInlays(event.editor.virtualFile) ?: return
+//        val editor = event.editor
+//        val resolved = resolveRequiredParam(event) ?: return
+//        val psi = resolved.second
+//
+//        val updated = mutableSetOf<RemarkPO>()
+//        for (inlay in inlays) {
+//            try {
+//                updated.add(RemarkUtils.generateRemarkPO(inlay.first.content, editor.document.getLineNumber(inlay.second.offset), editor, psi))
+//            } catch (e: IndexOutOfBoundsException) {
+//                // content is changed by other process.
+//                remarkService.invalidFileRemark(editor.virtualFile, inlay.first.lineNumber)
+//            }
+//        }
+//        if (updated.isNotEmpty()) {
+//            remarkService.updateFileRemarks(editor.virtualFile, updated)
+//        }
     }
 
     /**
@@ -107,21 +92,22 @@ class EditorFactoryListenerImpl : EditorFactoryListener {
      * @return 如果修复成功，返回修复后的备注，否则返回空
      */
     private fun tryFixRemark(remark: Remark, indicator: ParentIndicator, psi: PsiElement, document: Document): Remark? {
-        val holder = findTargetHolder(indicator.classname, indicator.name, psi) ?: return null
-        val oldOffset = holder.startOffset + remark.startOffsetInParent
-        if (oldOffset >= psi.endOffset) {
-            return null
-        }
-        val newLineNumber = document.getLineNumber(oldOffset)
-
-        val fixedRemark = remarkService.cloneRemark(remark)
-
-        // 将脏数据保存，页面更新后统一处理.
-        fixedRemark.startOffsetInParent = document.getLineEndOffset(newLineNumber) - holder.startOffset
-        fixedRemark.lineNumber = newLineNumber
-        fixedRemark.lineContent = document.getText(DocumentUtil.getLineTextRange(document, newLineNumber))
-
-        return fixedRemark
+//        val holder = findTargetHolder(indicator.classname, indicator.name, psi) ?: return null
+//        val oldOffset = holder.startOffset + remark.startOffsetInParent
+//        if (oldOffset >= psi.endOffset) {
+//            return null
+//        }
+//        val newLineNumber = document.getLineNumber(oldOffset)
+//
+//        val fixedRemark = remarkService.cloneRemark(remark)
+//
+//        // 将脏数据保存，页面更新后统一处理.
+//        fixedRemark.startOffsetInParent = document.getLineEndOffset(newLineNumber) - holder.startOffset
+//        fixedRemark.lineNumber = newLineNumber
+//        fixedRemark.lineContent = document.getText(DocumentUtil.getLineTextRange(document, newLineNumber))
+//
+//        return fixedRemark
+        TODO()
     }
 
     /**

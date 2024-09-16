@@ -6,7 +6,7 @@ import com.intellij.psi.PsiFile
 import io.github.iceofsummer.privateremark.bean.ParentIndicator
 import io.github.iceofsummer.privateremark.bean.Remark
 
-
+@Deprecated(message = "See io.github.iceofsummer.privateremark.svc.RemarkServiceV2")
 interface RemarkService {
 
     /**

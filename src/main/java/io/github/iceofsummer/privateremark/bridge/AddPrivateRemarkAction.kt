@@ -7,18 +7,18 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.ui.popup.Balloon
 import com.intellij.openapi.ui.popup.JBPopupFactory
+import io.github.iceofsummer.privateremark.bean.dto.RemarkDTO
 import io.github.iceofsummer.privateremark.core.RemarkInlayCoordinator
-import io.github.iceofsummer.privateremark.svc.RemarkService
+import io.github.iceofsummer.privateremark.svc.RemarkServiceV2
 import io.github.iceofsummer.privateremark.svc.ServiceFactory
 import io.github.iceofsummer.privateremark.ui.EditRemarkPopup
+import io.github.iceofsummer.privateremark.util.RemarkUtils
 import java.awt.event.ActionEvent
 
 /**
  * 处理右键添加备注事件
  */
 class AddPrivateRemarkAction : AnAction() {
-
-    private val remarkService: RemarkService = ServiceFactory.getService(RemarkService::class)
 
     override fun getActionUpdateThread(): ActionUpdateThread {
         return ActionUpdateThread.BGT
@@ -40,10 +40,18 @@ class AddPrivateRemarkAction : AnAction() {
         }
 
         editRemarkPopup.saveBtn.addActionListener { _: ActionEvent? ->
+            val remarkService = ServiceFactory.getService(RemarkServiceV2::class)
+
             val created = remarkService.saveRemark(
-                editRemarkPopup.remark.text,
-                editor,
-                event.getData(CommonDataKeys.PSI_FILE)
+                RemarkDTO(
+                    RemarkUtils.generateRemarkPO(
+                        editRemarkPopup.remark.text,
+                        editor.document.getLineNumber(editor.caretModel.offset),
+                        editor
+                    ),
+                    null,
+                    null
+                )
             )
             RemarkInlayCoordinator.displayRemark(editor, created, editor.document)
             balloon.hide()

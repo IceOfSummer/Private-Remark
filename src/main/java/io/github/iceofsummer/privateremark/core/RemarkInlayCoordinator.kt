@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Inlay
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.EditorNotificationProvider
 import io.github.iceofsummer.privateremark.bean.Remark
+import io.github.iceofsummer.privateremark.bean.po.RemarkPO
 import io.github.iceofsummer.privateremark.bridge.RemarkInlayListenerService
 import io.github.iceofsummer.privateremark.svc.RemarkService
 import io.github.iceofsummer.privateremark.svc.ServiceFactory
@@ -15,7 +16,7 @@ import io.github.iceofsummer.privateremark.svc.impl.InMemoryRemarkServiceImpl
 import io.github.iceofsummer.privateremark.ui.RemarkInlineInlayRenderer
 
 
-private typealias InlayMapValue = MutableList<Pair<Remark, Inlay<out EditorCustomElementRenderer>>>
+private typealias InlayMapValue = MutableList<Pair<RemarkPO, Inlay<out EditorCustomElementRenderer>>>
 private typealias InlayMap = MutableMap<String, InlayMapValue>
 private val VirtualFile.hashKey: String
     get() = url
@@ -34,13 +35,15 @@ object RemarkInlayCoordinator {
      * 展示备注，并记录状态
      */
     fun displayRemark(editor: Editor,
-                             remark: Remark,
-                             document: Document
+                      remark: RemarkPO,
+                      document: Document
     ) {
+        val lineNumber = remark.lineNumber ?: return
+        val content = remark.content ?: return
         val inlay = editor.inlayModel.addAfterLineEndElement(
-            document.getLineEndOffset(remark.lineNumber),
+            document.getLineEndOffset(lineNumber),
             true,
-            RemarkInlineInlayRenderer(editor, remark.content)
+            RemarkInlineInlayRenderer(editor, content)
         );
         if (inlay != null) {
             val loadedInlays = inlays[editor.virtualFile.hashKey]

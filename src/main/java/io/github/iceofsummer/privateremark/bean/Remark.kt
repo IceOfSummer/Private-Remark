@@ -1,5 +1,7 @@
 package io.github.iceofsummer.privateremark.bean
 
+import io.github.iceofsummer.privateremark.bean.po.RemarkVcs
+
 /**
  * 用于 java 文件(暂定)的备注
  */

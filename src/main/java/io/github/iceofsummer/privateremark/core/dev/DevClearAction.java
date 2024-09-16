@@ -16,7 +16,7 @@ public class DevClearAction extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
-        InMemoryRemarkServiceImpl.INSTANCE.clearRemarks();
+//        InMemoryRemarkServiceImpl.INSTANCE.clearRemarks();
     }
 
     @Override

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.iceofsummer.privateremark.mapper.inter.MetadataMapper">
+
+    <resultMap id="metadataPO" type="io.github.iceofsummer.privateremark.bean.po.MetadataPO">
+        <id property="name" column="name" />
+        <result property="value" column="value"/>
+    </resultMap>
+
+    <select id="selectByName" resultMap="metadataPO">
+        SELECT name, value FROM metadata WHERE name = #{key.key}
+    </select>
+
+    <select id="tableCount" resultType="int">
+        SELECT COUNT(*) FROM SQLITE_MASTER
+    </select>
+
+
+
+</mapper>

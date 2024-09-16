@@ -1,7 +1,7 @@
 package io.github.iceofsummer.privateremark.svc
 
 import com.intellij.openapi.vfs.VirtualFile
-import io.github.iceofsummer.privateremark.bean.VcsType
+import io.github.iceofsummer.privateremark.bean.po.RemarkVcs
 
 
 interface VcsBridge {
@@ -12,7 +12,7 @@ interface VcsBridge {
      */
     fun getReversion(virtualFile: VirtualFile): String?
 
-    fun getType(): VcsType
+    fun getType(): RemarkVcs.VcsType
 
 
 }
