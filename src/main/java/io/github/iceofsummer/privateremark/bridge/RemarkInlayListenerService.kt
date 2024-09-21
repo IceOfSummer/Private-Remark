@@ -1,4 +1,4 @@
-package io.github.iceofsummer.privateremark.core.bridge
+package io.github.iceofsummer.privateremark.bridge
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.Inlay

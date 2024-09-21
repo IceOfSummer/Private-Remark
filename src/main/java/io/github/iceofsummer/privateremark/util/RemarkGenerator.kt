@@ -11,7 +11,7 @@ import io.github.iceofsummer.privateremark.bean.Remark
 import io.github.iceofsummer.privateremark.bean.RemarkVcs
 import io.github.iceofsummer.privateremark.svc.factory.VcsBridgeFactory
 
-object RemarkUtils {
+object RemarkGenerator {
 
     fun generateRemark(content: String, lineNumber: Int, editor: Editor, psi: PsiFile?): Remark {
         var indicator: ParentIndicator? = null
@@ -35,6 +35,7 @@ object RemarkUtils {
         }
 
         return Remark(
+            System.currentTimeMillis().toString() + fillZero(lineNumber),
             startOffsetInParent,
             lineNumber,
             content,
@@ -51,6 +52,17 @@ object RemarkUtils {
         val vcs = VcsBridgeFactory.getInstance(project, editor.virtualFile) ?: return null
         val reversion = vcs.getReversion(editor.virtualFile) ?: return null
         return RemarkVcs(vcs.getType(), reversion)
+    }
+
+    /**
+     * 如果数字长度不足 4 位，则在后面填 0
+     */
+    private fun fillZero(value: Int): String {
+        var base = value
+        while (base < 1000) {
+            base *= 10;
+        }
+        return base.toString()
     }
 
 

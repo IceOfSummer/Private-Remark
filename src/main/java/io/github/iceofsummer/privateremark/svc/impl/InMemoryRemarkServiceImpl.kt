@@ -1,12 +1,11 @@
 package io.github.iceofsummer.privateremark.svc.impl
 
-import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import io.github.iceofsummer.privateremark.bean.Remark
 import io.github.iceofsummer.privateremark.svc.RemarkService
-import io.github.iceofsummer.privateremark.util.RemarkUtils
+import io.github.iceofsummer.privateremark.util.RemarkGenerator
 import java.util.Collections
 
 
@@ -25,7 +24,7 @@ object InMemoryRemarkServiceImpl: RemarkService {
 
 
     override fun saveRemark(content: String, editor: Editor, psi: PsiFile?): Remark {
-        val remark = RemarkUtils.generateRemark(content, editor.document.getLineNumber(editor.caretModel.offset), editor, psi)
+        val remark = RemarkGenerator.generateRemark(content, editor.document.getLineNumber(editor.caretModel.offset), editor, psi)
         remarksMap.getOrPut(editor.virtualFile.url, {
             mutableSetOf()
         }).add(remark)

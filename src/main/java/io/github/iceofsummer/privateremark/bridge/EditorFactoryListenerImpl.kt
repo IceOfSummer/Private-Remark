@@ -1,4 +1,4 @@
-package io.github.iceofsummer.privateremark.core.bridge
+package io.github.iceofsummer.privateremark.bridge
 
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.event.EditorFactoryEvent
@@ -17,7 +17,7 @@ import io.github.iceofsummer.privateremark.bean.Remark
 import io.github.iceofsummer.privateremark.core.RemarkInlayCoordinator
 import io.github.iceofsummer.privateremark.svc.RemarkService
 import io.github.iceofsummer.privateremark.svc.ServiceFactory
-import io.github.iceofsummer.privateremark.util.RemarkUtils
+import io.github.iceofsummer.privateremark.util.RemarkGenerator
 
 /**
  * 监听编辑器打开和关闭事件，当打开时显示所有备注，关闭时保存最后的位置。
@@ -39,7 +39,6 @@ class EditorFactoryListenerImpl : EditorFactoryListener {
         val psi = resolved.second
 
         for (remark in remarks) {
-//             TODO "tip user some remark can not fix automatically."
             val indicator = remark.parentIndicator
             val currentText = editor.document.getText(DocumentUtil.getLineTextRange(editor.document, remark.lineNumber))
 
@@ -77,7 +76,7 @@ class EditorFactoryListenerImpl : EditorFactoryListener {
         val updated = mutableSetOf<Remark>()
         for (inlay in inlays) {
             try {
-                updated.add(RemarkUtils.generateRemark(inlay.first.content, editor.document.getLineNumber(inlay.second.offset), editor, psi))
+                updated.add(RemarkGenerator.generateRemark(inlay.first.content, editor.document.getLineNumber(inlay.second.offset), editor, psi))
             } catch (e: IndexOutOfBoundsException) {
                 // content is changed by other process.
                 remarkService.invalidFileRemark(editor.virtualFile, inlay.first.lineNumber)

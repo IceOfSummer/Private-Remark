@@ -85,6 +85,7 @@ interface RemarkService {
         }
 
         return Remark(
+            remark.id,
             remark.startOffsetInParent,
             remark.lineNumber,
             remark.content,

@@ -28,11 +28,15 @@
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-        <editorFactoryListener implementation="io.github.iceofsummer.privateremark.core.bridge.EditorFactoryListenerImpl"/>
-        <editorNotificationProvider implementation="io.github.iceofsummer.privateremark.core.bridge.EditorNotificationProviderImpl"/>
+        <editorFactoryListener implementation="io.github.iceofsummer.privateremark.bridge.EditorFactoryListenerImpl"/>
+        <editorNotificationProvider implementation="io.github.iceofsummer.privateremark.bridge.EditorNotificationProviderImpl"/>
+        <applicationConfigurable parentId="tools"
+                                 id="io.github.iceofsummer.privateremark.bridge.conf.PrivateRemarkConfigurable"
+                                 displayName="Private Remark"
+                                 instance="io.github.iceofsummer.privateremark.bridge.conf.PrivateRemarkConfigurable"/>
     </extensions>
     <actions>
-        <action id="io.github.iceofsummer.privateremark.core.bridge.AddPrivateRemarkAction" class="io.github.iceofsummer.privateremark.core.bridge.AddPrivateRemarkAction"
+        <action id="io.github.iceofsummer.privateremark.bridge.AddPrivateRemarkAction" class="io.github.iceofsummer.privateremark.bridge.AddPrivateRemarkAction"
                 text="Pop Dialog Action" description="Demo">
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>

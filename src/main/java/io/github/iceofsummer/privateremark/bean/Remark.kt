@@ -5,6 +5,10 @@ package io.github.iceofsummer.privateremark.bean
  */
 data class Remark(
     /**
+     * 唯一 id.
+     */
+    var id: String,
+    /**
      * 相对于父代码块的偏移, 如果没有父容器，则从文档开始算
      */
     var startOffsetInParent: Int = 0,

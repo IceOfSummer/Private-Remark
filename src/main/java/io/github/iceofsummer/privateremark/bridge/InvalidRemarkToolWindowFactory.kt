@@ -1,4 +1,4 @@
-package io.github.iceofsummer.privateremark.core.bridge
+package io.github.iceofsummer.privateremark.bridge
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel

@@ -8,7 +8,7 @@ import com.intellij.openapi.editor.Inlay
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.EditorNotificationProvider
 import io.github.iceofsummer.privateremark.bean.Remark
-import io.github.iceofsummer.privateremark.core.bridge.RemarkInlayListenerService
+import io.github.iceofsummer.privateremark.bridge.RemarkInlayListenerService
 import io.github.iceofsummer.privateremark.svc.RemarkService
 import io.github.iceofsummer.privateremark.svc.ServiceFactory
 import io.github.iceofsummer.privateremark.svc.impl.InMemoryRemarkServiceImpl
