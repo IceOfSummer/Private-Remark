@@ -22,6 +22,11 @@ intellij {
     plugins.set(listOf("com.intellij.java", "Git4Idea", "Subversion"))
 }
 
+dependencies {
+    implementation("org.xerial:sqlite-jdbc:3.46.1.0")
+    implementation("com.zaxxer:HikariCP:6.0.0")
+}
+
 tasks {
     // Set the JVM compatibility versions
     withType<JavaCompile> {

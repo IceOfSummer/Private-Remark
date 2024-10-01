@@ -7,7 +7,7 @@ import com.intellij.openapi.components.Storage
 
 @State(
     name = "io.github.iceofsummer.privateremark.bridge.conf.PrivateRemarkSettings",
-    storages = [ Storage("SdkSettingsPlugin.xml") ]
+    storages = [ Storage("PrivateRemarkSettings.xml") ]
 )
 @Service(Service.Level.APP)
 class PrivateRemarkSettings : PersistentStateComponent<PrivateRemarkState> {
