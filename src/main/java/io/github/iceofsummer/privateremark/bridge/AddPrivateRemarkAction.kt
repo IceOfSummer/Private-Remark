@@ -53,7 +53,7 @@ class AddPrivateRemarkAction : AnAction() {
                     null
                 )
             )
-            RemarkInlayCoordinator.displayRemark(editor, created, editor.document)
+            RemarkInlayCoordinator.displayRemark(editor, editor.document, created)
             balloon.hide()
         }
 

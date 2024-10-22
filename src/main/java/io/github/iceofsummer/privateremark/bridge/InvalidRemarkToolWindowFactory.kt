@@ -5,11 +5,8 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.ui.Splitter
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
-import com.intellij.ui.components.JBList
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.content.ContentFactory
-import io.github.iceofsummer.privateremark.svc.RemarkService
-import io.github.iceofsummer.privateremark.svc.ServiceFactory
 import javax.swing.JComponent
 import javax.swing.JLabel
 

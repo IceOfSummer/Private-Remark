@@ -13,4 +13,10 @@ CREATE TABLE remark(
 
 CREATE INDEX path_to_id ON remark(path);
 
+CREATE TABLE remark_holder(
+    remark_id INTEGER PRIMARY KEY ,
+    offset_in_parent INTEGER NOT NULL,
+    parent_identifier_name VARCHAR(64) NOT NULL
+);
+
 INSERT INTO metadata VALUES('db_ver', '0');

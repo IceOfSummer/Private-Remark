@@ -1,8 +1,8 @@
 package io.github.iceofsummer.privateremark.svc
 
-import com.intellij.openapi.vfs.VirtualFile
-import io.github.iceofsummer.privateremark.bean.Remark
 import io.github.iceofsummer.privateremark.bean.dto.RemarkDTO
+import io.github.iceofsummer.privateremark.bean.dto.RemarkFixDTO
+import io.github.iceofsummer.privateremark.bean.po.RemarkHolderPO
 import io.github.iceofsummer.privateremark.bean.po.RemarkPO
 import io.github.iceofsummer.privateremark.svc.factory.MultiImplementOnRuntime
 import io.github.iceofsummer.privateremark.svc.factory.RemarkServiceFactory
@@ -27,5 +27,21 @@ interface RemarkServiceV2 {
      */
     fun resolveAllInvalidRemarks(path: String): List<RemarkPO>
 
+    /**
+     * 根据 [RemarkPO.id] 获取 [RemarkHolderPO]
+     */
+    fun getRemarkHolderById(id: Int): RemarkHolderPO?
+
+    /**
+     * 标记备注失效且无法自动修复
+     */
+    fun markRemarkInvalid(id: Int)
+
+    /**
+     * 修复备注位置
+     * @param id [RemarkPO.id]
+     * @param remarkFixDTO 新位置的相关参数
+     */
+    fun fixRemark(id: Int, remarkFixDTO: RemarkFixDTO)
 
 }

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.iceofsummer.privateremark.mapper.inter.RemarkHolderMapper">
+
+    <resultMap id="parentIndicatorPO" type="io.github.iceofsummer.privateremark.bean.po.RemarkHolderPO">
+        <id column="remark_id" property="remarkId"/>
+        <result column="offset_in_parent" property="offsetInParent"/>
+        <result column="parent_identifier_name" property="parentIdentifierName"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO remark_holder VALUES(#{entity.remarkId}, #{entity.offsetInParent}, #{entity.parentIdentifierName})
+    </insert>
+
+    <select id="selectByRemarkId" resultMap="parentIndicatorPO">
+        SELECT * FROM remark_holder WHERE remark_id = #{id}
+    </select>
+
+    <update id="update">
+        UPDATE remark_holder
+        <set>
+            <if test="entity.offsetInParent != null">offset_in_parent = #{entity.offsetInParent}</if>
+            <if test="entity.parentIdentifierName != null">parent_identifier_name = #{entity.parentIdentifierName}</if>
+        </set>
+        WHERE id = #{entity.id}
+    </update>
+
+</mapper>

@@ -8,7 +8,6 @@ import kotlin.reflect.full.createInstance
 
 private typealias InstanceCacheType = Pair<InstanceFactory<*>, Any?>
 
-@Deprecated("使用 Light Service.")
 object ServiceFactory {
 
 
@@ -28,10 +27,6 @@ object ServiceFactory {
     /**
      * 获取服务
      */
-    @Deprecated(
-        "使用 Light Service.",
-        replaceWith = ReplaceWith("service<clazz>()", "com.intellij.openapi.components.service")
-    )
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> getService(clazz: KClass<T>): T {
         val cached = tryGetFromCache(clazz)

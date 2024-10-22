@@ -24,10 +24,14 @@ data class RemarkPO (
     /**
      * 当前行的内容
      */
-    var currentLineContent: String
+    var currentLineContent: String,
+    /**
+     * 备注是否失效. 当该值为 true 时，表示备注无缝自动修复.
+     */
+    var isInvalid: Boolean
 ) {
     /**
      * Only used for serializer.
      */
-    constructor() :this(-1, "", -1, "", "")
+    constructor() :this(-1, "", -1, "", "", false)
 }

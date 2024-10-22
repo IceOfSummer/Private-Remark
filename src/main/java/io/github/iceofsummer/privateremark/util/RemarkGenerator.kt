@@ -4,6 +4,12 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiManager
+import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.refactoring.suggested.startOffset
+import com.intellij.testFramework.utils.vfs.getPsiFile
+import io.github.iceofsummer.privateremark.bean.po.RemarkHolderPO
 import io.github.iceofsummer.privateremark.bean.po.RemarkPO
 import io.github.iceofsummer.privateremark.bean.po.RemarkVcs
 import io.github.iceofsummer.privateremark.svc.factory.VcsBridgeFactory
@@ -26,33 +32,36 @@ object RemarkUtils {
             content,
             doc.getText(
                 TextRange(doc.getLineStartOffset(lineNumber), lineEnd)
-            )
+            ),
+            false
         )
     }
 
-    private fun tryBuildRemarkVcs(editor: Editor): RemarkVcs? {
+    fun tryResolveRemarkHolder(remarkId: Int, editor: Editor, lineNumber: Int): RemarkHolderPO? {
         val project = editor.project ?: return null
-        val vcs = VcsBridgeFactory.getInstance(project, editor.virtualFile) ?: return null
-        val reversion = vcs.getReversion(editor.virtualFile) ?: return null
-        return RemarkVcs(-1, vcs.getType(), reversion)
+        val psi = PsiManager.getInstance(project).findFile(editor.virtualFile) ?: return null
+        val provider = psi.viewProvider
+
+        val node = provider.findElementAt(editor.caretModel.offset)
+        val parent = PsiTreeUtil.getParentOfType(node, PsiNamedElement::class.java)
+        val lineEnd = editor.document.getLineEndOffset(lineNumber)
+
+        parent?.name?.let { name ->
+            return RemarkHolderPO(
+                remarkId,
+                lineEnd - parent.startOffset - 1,
+                parent.javaClass.name
+            )
+        }
+        return null
     }
 
-    /**
-     * 如果数字长度不足 4 位，则在后面填 0
-     */
-    private fun fillZero(value: Int): String {
-        var base = value
-        while (base < 1000) {
-            base *= 10;
-        }
-        return base.toString()
-    }
 
     /**
      * 将绝对路径转化为相对路径
      * @throws [IllegalArgumentException] 无法找到相对路径
      */
-    fun toRelativePath(root: String, absolutePath: String): String {
+    private fun toRelativePath(root: String, absolutePath: String): String {
         val target = Paths.get(absolutePath)
         val base = Paths.get(root)
         return base.relativize(target).toString()

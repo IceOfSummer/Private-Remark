@@ -10,6 +10,7 @@
         <result column="line_number" property="lineNumber"/>
         <result column="content" property="content"/>
         <result column="current_line_content" property="currentLineContent"/>
+        <result column="is_invalid" property="isInvalid"/>
     </resultMap>
 
     <select id="selectAllByPath" resultMap="remark">
@@ -27,8 +28,9 @@
                 <if test="entity.lineNumber != null">line_number = #{entity.lineNumber}</if>
                 <if test="entity.content != null">content = #{entity.content}</if>
                 <if test="entity.currentLineContent != null">current_line_content = #{entity.currentLineContent}</if>
+                <if test="entity.isInvalid != null">is_invalid = #{entity.isInvalid}</if>
             </set>
-        WHERE id = #{entity.id}
+        WHERE remark_id = #{entity.id}
     </update>
 
 </mapper>

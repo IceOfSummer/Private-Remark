@@ -1,6 +1,6 @@
 package io.github.iceofsummer.privateremark.bean.po
 
-data class ParentIndicatorPO(
+data class RemarkHolderPO(
     /**
      * @see RemarkPO.id
      */
@@ -8,13 +8,9 @@ data class ParentIndicatorPO(
     /**
      * 相对于父代码块的偏移, 如果没有父容器，则从文档开始算
      */
-    var startOffsetInParent: Int = 0,
+    var offsetInParent: Int = 0,
     /**
-     * 类名
+     * 父容器的名称
      */
-    var classname: String = "",
-    /**
-     * 名称
-     */
-    var name: String = "",
+    var parentIdentifierName: String = "",
 )

@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.github.iceofsummer.privateremark.mapper.common.DatabaseVersionManager
 import io.github.iceofsummer.privateremark.mapper.inter.MetadataMapper
+import io.github.iceofsummer.privateremark.mapper.inter.RemarkHolderMapper
 import io.github.iceofsummer.privateremark.mapper.inter.RemarkMapper
 import org.apache.ibatis.mapping.Environment
 import org.apache.ibatis.session.Configuration
@@ -36,6 +37,7 @@ object DatasourceManager {
 
         configuration.addMapper(MetadataMapper::class.java)
         configuration.addMapper(RemarkMapper::class.java)
+        configuration.addMapper(RemarkHolderMapper::class.java)
         return configuration
     }
 

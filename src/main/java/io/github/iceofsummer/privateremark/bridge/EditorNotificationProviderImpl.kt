@@ -3,14 +3,8 @@ package io.github.iceofsummer.privateremark.bridge
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.wm.ToolWindowManager
-import com.intellij.ui.EditorNotificationPanel
 import com.intellij.ui.EditorNotificationProvider
-import io.github.iceofsummer.privateremark.svc.RemarkService
-import io.github.iceofsummer.privateremark.svc.ServiceFactory
-import io.github.iceofsummer.privateremark.ui.InvalidRemarkToolWindow
 import java.util.function.Function
-import java.util.function.Supplier
 import javax.swing.JComponent
 
 class EditorNotificationProviderImpl : EditorNotificationProvider {
