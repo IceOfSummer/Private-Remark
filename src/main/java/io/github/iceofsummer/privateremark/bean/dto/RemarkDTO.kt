@@ -1,12 +1,41 @@
 package io.github.iceofsummer.privateremark.bean.dto
 
-import io.github.iceofsummer.privateremark.bean.ParentIndicator
-import io.github.iceofsummer.privateremark.bean.po.RemarkHolderPO
 import io.github.iceofsummer.privateremark.bean.po.RemarkPO
-import io.github.iceofsummer.privateremark.bean.po.RemarkVcs
 
 data class RemarkDTO(
-    var remarkPO: RemarkPO,
-    var vcs: RemarkVcs? = null,
-    var holder: RemarkHolderPO? = null
-)
+    /**
+     * 唯一 id.
+     */
+    var id: Int,
+    /**
+     * 该备注在哪个文件上, 相对路径
+     */
+    var path: String,
+    /**
+     * 行号
+     */
+    var lineNumber: Int,
+    /**
+     * 备注内容
+     */
+    var content: String,
+    /**
+     * 当前行的内容
+     */
+    var currentLineContent: String,
+    /**
+     * 备注是否失效. 当该值为 true 时，表示备注无缝自动修复.
+     */
+    var isInvalid: Boolean
+) {
+
+    constructor(remarkPO: RemarkPO) : this(
+        remarkPO.id,
+        remarkPO.path!!,
+        remarkPO.lineNumber!!,
+        remarkPO.content!!,
+        remarkPO.currentLineContent!!,
+        remarkPO.isInvalid!!
+    )
+
+}

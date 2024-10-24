@@ -8,7 +8,8 @@ CREATE TABLE remark(
     path VARCHAR(128),
     line_number INTEGER NOT NULL,
     content VARCHAR(512),
-    current_line_content VARCHAR(128)
+    current_line_content VARCHAR(128),
+    is_invalid BOOL DEFAULT false
 );
 
 CREATE INDEX path_to_id ON remark(path);

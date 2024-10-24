@@ -2,9 +2,10 @@ package io.github.iceofsummer.privateremark.svc.impl
 
 import com.intellij.openapi.vfs.VirtualFile
 import io.github.iceofsummer.privateremark.bean.dto.RemarkDTO
+import io.github.iceofsummer.privateremark.bean.dto.RemarkInsertDTO
 import io.github.iceofsummer.privateremark.bean.dto.RemarkFixDTO
+import io.github.iceofsummer.privateremark.bean.dto.RemarkHolderDTO
 import io.github.iceofsummer.privateremark.bean.po.RemarkHolderPO
-import io.github.iceofsummer.privateremark.bean.po.RemarkPO
 import io.github.iceofsummer.privateremark.svc.RemarkServiceV2
 import java.util.Collections
 
@@ -18,28 +19,28 @@ private val VirtualFile.hashKey: String
  */
 class InMemoryRemarkServiceImpl: RemarkServiceV2 {
 
-    private val remarksMap: MutableMap<String, MutableList<RemarkPO>> = HashMap()
+    private val remarksMap: MutableMap<String, MutableList<RemarkDTO>> = HashMap()
 
-    private val invalidRemarksMap: MutableMap<String, MutableList<RemarkPO>> = HashMap()
+    private val invalidRemarksMap: MutableMap<String, MutableList<RemarkDTO>> = HashMap()
 
 
-    override fun saveRemark(remarkDTO: RemarkDTO): RemarkPO {
+    override fun saveRemark(remarkInsertDTO: RemarkInsertDTO): Int {
         val id = System.currentTimeMillis().toInt()
-        val remarks = remarksMap.getOrPut(remarkDTO.remarkPO.path) { mutableListOf() }
-        remarks.add(remarkDTO.remarkPO)
-        remarkDTO.remarkPO.id = id
-        return remarkDTO.remarkPO
+        val remarks = remarksMap.getOrPut(remarkInsertDTO.remark.path) { mutableListOf() }
+        remarks.add(remarkInsertDTO.remark)
+        remarkInsertDTO.remark.id = id
+        return id
     }
 
-    override fun resolveAllRemarks(path: String): List<RemarkPO> {
+    override fun resolveAllValidRemarks(path: String): List<RemarkDTO> {
         return remarksMap[path] ?: Collections.emptyList()
     }
 
-    override fun resolveAllInvalidRemarks(path: String): List<RemarkPO> {
+    override fun resolveAllInvalidRemarks(path: String): List<RemarkDTO> {
         return invalidRemarksMap[path] ?: Collections.emptyList()
     }
 
-    override fun getRemarkHolderById(id: Int): RemarkHolderPO? {
+    override fun getRemarkHolderById(id: Int): RemarkHolderDTO? {
         return null
     }
 

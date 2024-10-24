@@ -21,10 +21,10 @@
     <update id="update">
         UPDATE remark_holder
         <set>
-            <if test="entity.offsetInParent != null">offset_in_parent = #{entity.offsetInParent}</if>
-            <if test="entity.parentIdentifierName != null">parent_identifier_name = #{entity.parentIdentifierName}</if>
+            <if test="entity.offsetInParent != null">offset_in_parent = #{entity.offsetInParent},</if>
+            <if test="entity.parentIdentifierName != null">parent_identifier_name = #{entity.parentIdentifierName},</if>
         </set>
-        WHERE id = #{entity.id}
+        WHERE remark_id = #{entity.remarkId}
     </update>
 
 </mapper>

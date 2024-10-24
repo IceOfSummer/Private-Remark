@@ -1,5 +1,6 @@
 package io.github.iceofsummer.privateremark.mapper.inter
 
+import io.github.iceofsummer.privateremark.bean.dto.RemarkHolderDTO
 import io.github.iceofsummer.privateremark.bean.po.RemarkHolderPO
 import org.apache.ibatis.annotations.Param
 
@@ -12,7 +13,7 @@ interface RemarkHolderMapper {
      * 插入
      * @return affected rows
      */
-    fun insert(@Param("entity") remarkHolderPO: RemarkHolderPO): Int
+    fun insert(@Param("entity") remarkHolder: RemarkHolderDTO): Int
 
     /**
      * 根据 [RemarkHolderPO.remarkId] 获取 [RemarkHolderPO]

@@ -12,10 +12,9 @@ import com.intellij.psi.PsiManager
 import com.intellij.psi.PsiNamedElement
 import com.intellij.refactoring.suggested.endOffset
 import com.intellij.refactoring.suggested.startOffset
-import com.intellij.testFramework.utils.vfs.getPsiFile
 import com.intellij.util.DocumentUtil
+import io.github.iceofsummer.privateremark.bean.dto.RemarkDTO
 import io.github.iceofsummer.privateremark.bean.dto.RemarkFixDTO
-import io.github.iceofsummer.privateremark.bean.po.RemarkHolderPO
 import io.github.iceofsummer.privateremark.bean.po.RemarkPO
 import io.github.iceofsummer.privateremark.bridge.RemarkInlayListenerService
 import io.github.iceofsummer.privateremark.svc.RemarkServiceV2
@@ -24,7 +23,7 @@ import io.github.iceofsummer.privateremark.ui.RemarkInlineInlayRenderer
 import io.github.iceofsummer.privateremark.util.RemarkUtils
 
 
-private typealias InlayMapValue = MutableList<Pair<RemarkPO, Inlay<out EditorCustomElementRenderer>>>
+private typealias InlayMapValue = MutableList<Pair<RemarkDTO, Inlay<out EditorCustomElementRenderer>>>
 private typealias InlayMap = MutableMap<String, InlayMapValue>
 private val VirtualFile.hashKey: String
     get() = url
@@ -39,7 +38,7 @@ object RemarkInlayCoordinator {
     private val inlays: InlayMap = mutableMapOf()
 
 
-    fun displayRemarks(editor: Editor, document: Document, remarks: List<RemarkPO>) {
+    fun displayRemarks(editor: Editor, document: Document, remarks: List<RemarkDTO>) {
         for (remark in remarks) {
             displayRemark(editor, document, remark)
         }
@@ -50,9 +49,9 @@ object RemarkInlayCoordinator {
      */
     fun displayRemark(editor: Editor,
                       document: Document,
-                      uncheckedRemark: RemarkPO
+                      uncheckedRemark: RemarkDTO
     ) {
-        val validRemark = ensureRemarkValid(uncheckedRemark, editor, document) ?: let {
+        val validRemark = ensureRemarkValid(uncheckedRemark, editor) ?: let {
             val service = ServiceFactory.getService(RemarkServiceV2::class)
             service.markRemarkInvalid(uncheckedRemark.id)
             return
@@ -85,31 +84,62 @@ object RemarkInlayCoordinator {
      * @return 返回一个位置一定正确的备注。返回空表示该备注失效.
      */
     private fun ensureRemarkValid(
-        uncheckedRemark: RemarkPO,
-        editor: Editor,
-        document: Document
-    ): RemarkPO? {
-        val currentLineText = editor.document.getText(DocumentUtil.getLineTextRange(editor.document, uncheckedRemark.lineNumber))
-        if (currentLineText == uncheckedRemark.currentLineContent) {
+        uncheckedRemark: RemarkDTO,
+        editor: Editor
+    ): RemarkDTO? {
+        if (isValidRemark(uncheckedRemark, editor)) {
             return uncheckedRemark
         }
-        // invalid remark
-        val project = editor.project ?: return null
-        val psiFile = PsiManager.getInstance(project).findFile(editor.virtualFile) ?: return null
 
+        return tryFixRemark(editor, uncheckedRemark) ?: let {
+            val remarkService = ServiceFactory.getService(RemarkServiceV2::class)
+            remarkService.markRemarkInvalid(uncheckedRemark.id)
+            return null
+        }
+    }
+
+    /**
+     * 尝试修复备注.
+     * @return 修复后的备注. 如果不能修复，返回空
+     */
+    private fun tryFixRemark(editor: Editor, invalidRemarkPO: RemarkDTO): RemarkDTO? {
+        val project = editor.project ?: return null
+        val psi = PsiManager.getInstance(project).findFile(editor.virtualFile) ?: return null
         val remarkService = ServiceFactory.getService(RemarkServiceV2::class)
-        val remarkHolderPO = remarkService.getRemarkHolderById(uncheckedRemark.id)
+        val remarkHolderPO = remarkService.getRemarkHolderById(invalidRemarkPO.id)
 
         if (remarkHolderPO == null) {
-            remarkService.markRemarkInvalid(uncheckedRemark.id)
+            remarkService.markRemarkInvalid(invalidRemarkPO.id)
             return null
         }
-        val fixed = tryFixRemark(uncheckedRemark, remarkHolderPO, psiFile, document)
-        if (fixed == null) {
-            remarkService.markRemarkInvalid(uncheckedRemark.id)
+
+        val document = editor.document
+        val holder = findTargetHolder(remarkHolderPO.parentIdentifierName, psi) ?: return null
+        val oldOffset = holder.startOffset + remarkHolderPO.offsetInParent
+        if (oldOffset >= psi.endOffset) {
             return null
         }
-        return fixed
+        val newLineNumber = document.getLineNumber(oldOffset)
+
+        val newLineContent = document.getText(DocumentUtil.getLineTextRange(document, newLineNumber))
+        val newOffset =  document.getLineEndOffset(newLineNumber) - holder.startOffset
+        remarkService.fixRemark(
+            invalidRemarkPO.id,
+            RemarkFixDTO(
+                newLineNumber,
+                newLineContent,
+                newOffset
+            )
+        )
+        return invalidRemarkPO.copy(lineNumber = newLineNumber, currentLineContent = newLineContent)
+    }
+
+    private fun isValidRemark(uncheckedRemark: RemarkDTO, editor: Editor): Boolean {
+        if (uncheckedRemark.lineNumber >= editor.document.lineCount || uncheckedRemark.lineNumber < 0) {
+            return false
+        }
+        val currentLineText = editor.document.getText(DocumentUtil.getLineTextRange(editor.document, uncheckedRemark.lineNumber))
+        return currentLineText == uncheckedRemark.currentLineContent
     }
 
 
@@ -130,7 +160,7 @@ object RemarkInlayCoordinator {
     /**
      * 检测备注位置是否变动，如果变动了则返回修复后的位置.
      */
-    private fun checkChanged(editor: Editor, remark: RemarkPO, inlay: Inlay<out EditorCustomElementRenderer>): RemarkFixDTO? {
+    private fun checkChanged(editor: Editor, remark: RemarkDTO, inlay: Inlay<out EditorCustomElementRenderer>): RemarkFixDTO? {
         var changed = false
         val doc = editor.document
 
@@ -151,32 +181,10 @@ object RemarkInlayCoordinator {
             return RemarkFixDTO(
                 newLineNumber,
                 newLineContent,
-                RemarkUtils.tryResolveRemarkHolder(remark.id, editor, newLineNumber)?.offsetInParent
+                RemarkUtils.tryResolveRemarkHolder(editor, newLineNumber)?.offsetInParent
             )
         }
         return null
-    }
-
-    private fun tryFixRemark(remark: RemarkPO, remarkHolder: RemarkHolderPO, psi: PsiElement, document: Document): RemarkPO? {
-        val holder = findTargetHolder(remarkHolder.parentIdentifierName, psi) ?: return null
-        val oldOffset = holder.startOffset + remarkHolder.offsetInParent
-        if (oldOffset >= psi.endOffset) {
-            return null
-        }
-        val newLineNumber = document.getLineNumber(oldOffset)
-
-
-        val remarkService = ServiceFactory.getService(RemarkServiceV2::class)
-
-        remarkService.fixRemark(
-            remark.id,
-            RemarkFixDTO(
-                newLineNumber,
-                document.getText(DocumentUtil.getLineTextRange(document, newLineNumber)),
-                document.getLineEndOffset(newLineNumber) - holder.startOffset
-            )
-        )
-        return remark
     }
 
 

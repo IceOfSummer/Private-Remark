@@ -1,7 +1,9 @@
 package io.github.iceofsummer.privateremark.svc
 
 import io.github.iceofsummer.privateremark.bean.dto.RemarkDTO
+import io.github.iceofsummer.privateremark.bean.dto.RemarkInsertDTO
 import io.github.iceofsummer.privateremark.bean.dto.RemarkFixDTO
+import io.github.iceofsummer.privateremark.bean.dto.RemarkHolderDTO
 import io.github.iceofsummer.privateremark.bean.po.RemarkHolderPO
 import io.github.iceofsummer.privateremark.bean.po.RemarkPO
 import io.github.iceofsummer.privateremark.svc.factory.MultiImplementOnRuntime
@@ -12,25 +14,25 @@ interface RemarkServiceV2 {
 
     /**
      * 保存备注.
-     * @param remarkDTO 备注数据. 不需要设置 [RemarkPO.id]
-     * @return [RemarkPO] 保存后的数据，会自动设置 [RemarkPO.id]
+     * @param remarkInsertDTO 备注数据. 不需要设置 [RemarkPO.id]
+     * @return 新备注的id
      */
-    fun saveRemark(remarkDTO: RemarkDTO): RemarkPO
+    fun saveRemark(remarkInsertDTO: RemarkInsertDTO): Int
 
     /**
-     * 获取所有的备注
+     * 获取所有有效的备注
      */
-    fun resolveAllRemarks(path: String): List<RemarkPO>
+    fun resolveAllValidRemarks(path: String): List<RemarkDTO>
 
     /**
      * 获取所有失效的备注
      */
-    fun resolveAllInvalidRemarks(path: String): List<RemarkPO>
+    fun resolveAllInvalidRemarks(path: String): List<RemarkDTO>
 
     /**
-     * 根据 [RemarkPO.id] 获取 [RemarkHolderPO]
+     * 根据 [RemarkPO.id] 获取 [RemarkHolderDTO]
      */
-    fun getRemarkHolderById(id: Int): RemarkHolderPO?
+    fun getRemarkHolderById(id: Int): RemarkHolderDTO?
 
     /**
      * 标记备注失效且无法自动修复

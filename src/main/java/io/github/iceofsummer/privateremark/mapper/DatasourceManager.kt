@@ -35,6 +35,7 @@ object DatasourceManager {
         val transactionFactory: TransactionFactory = JdbcTransactionFactory()
         val configuration = Configuration(Environment(localDatabaseFilePath, transactionFactory, dataSource))
 
+        configuration.isUseGeneratedKeys = true
         configuration.addMapper(MetadataMapper::class.java)
         configuration.addMapper(RemarkMapper::class.java)
         configuration.addMapper(RemarkHolderMapper::class.java)

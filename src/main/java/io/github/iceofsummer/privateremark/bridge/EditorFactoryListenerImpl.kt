@@ -17,7 +17,7 @@ class EditorFactoryListenerImpl : EditorFactoryListener {
         val remarkService = ServiceFactory.getService(RemarkServiceV2::class)
         val editor = event.editor
         val file = editor.virtualFile
-        val remarks = remarkService.resolveAllRemarks(RemarkUtils.toRelativePath(editor.project, file.path))
+        val remarks = remarkService.resolveAllValidRemarks(RemarkUtils.toRelativePath(editor.project, file.path))
         if (remarks.isEmpty()) {
             return
         }

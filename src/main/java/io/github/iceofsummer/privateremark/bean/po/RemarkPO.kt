@@ -12,26 +12,23 @@ data class RemarkPO (
     /**
      * 该备注在哪个文件上, 相对路径
      */
-    var path: String,
+    var path: String?,
     /**
      * 行号
      */
-    var lineNumber: Int,
+    var lineNumber: Int?,
     /**
      * 备注内容
      */
-    var content: String,
+    var content: String?,
     /**
      * 当前行的内容
      */
-    var currentLineContent: String,
+    var currentLineContent: String?,
     /**
      * 备注是否失效. 当该值为 true 时，表示备注无缝自动修复.
      */
-    var isInvalid: Boolean
+    var isInvalid: Boolean?
 ) {
-    /**
-     * Only used for serializer.
-     */
-    constructor() :this(-1, "", -1, "", "", false)
+    constructor() : this(-1,null,null,null,null,null)
 }

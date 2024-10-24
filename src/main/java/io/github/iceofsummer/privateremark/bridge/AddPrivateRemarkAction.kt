@@ -7,7 +7,8 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.ui.popup.Balloon
 import com.intellij.openapi.ui.popup.JBPopupFactory
-import io.github.iceofsummer.privateremark.bean.dto.RemarkDTO
+import io.github.iceofsummer.privateremark.bean.dto.RemarkHolderDTO
+import io.github.iceofsummer.privateremark.bean.dto.RemarkInsertDTO
 import io.github.iceofsummer.privateremark.core.RemarkInlayCoordinator
 import io.github.iceofsummer.privateremark.svc.RemarkServiceV2
 import io.github.iceofsummer.privateremark.svc.ServiceFactory
@@ -42,18 +43,18 @@ class AddPrivateRemarkAction : AnAction() {
         editRemarkPopup.saveBtn.addActionListener { _: ActionEvent? ->
             val remarkService = ServiceFactory.getService(RemarkServiceV2::class)
 
-            val created = remarkService.saveRemark(
-                RemarkDTO(
-                    RemarkUtils.generateRemarkPO(
-                        editRemarkPopup.remark.text,
-                        editor.document.getLineNumber(editor.caretModel.offset),
-                        editor
-                    ),
-                    null,
-                    null
-                )
+            val lineNumber = editor.document.getLineNumber(editor.caretModel.offset)
+            val dto = RemarkInsertDTO(
+                RemarkUtils.generateRemark(
+                    editRemarkPopup.remark.text,
+                    lineNumber,
+                    editor
+                ),
+                null,
+                RemarkUtils.tryResolveRemarkHolder(editor, lineNumber)?.let { RemarkHolderDTO(it) }
             )
-            RemarkInlayCoordinator.displayRemark(editor, editor.document, created)
+            remarkService.saveRemark(dto)
+            RemarkInlayCoordinator.displayRemark(editor, editor.document, dto.remark)
             balloon.hide()
         }
 

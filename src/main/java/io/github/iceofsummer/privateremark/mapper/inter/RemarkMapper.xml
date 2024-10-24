@@ -14,7 +14,7 @@
     </resultMap>
 
     <select id="selectAllByPath" resultMap="remark">
-        SELECT * FROM remark WHERE path = #{path}
+        SELECT * FROM remark WHERE path = #{path} <if test="invalid != null">AND is_invalid = #{invalid}</if>
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
@@ -25,12 +25,12 @@
     <update id="update">
         UPDATE remark
             <set>
-                <if test="entity.lineNumber != null">line_number = #{entity.lineNumber}</if>
-                <if test="entity.content != null">content = #{entity.content}</if>
-                <if test="entity.currentLineContent != null">current_line_content = #{entity.currentLineContent}</if>
-                <if test="entity.isInvalid != null">is_invalid = #{entity.isInvalid}</if>
+                <if test="entity.lineNumber != null">line_number = #{entity.lineNumber},</if>
+                <if test="entity.content != null">content = #{entity.content},</if>
+                <if test="entity.currentLineContent != null">current_line_content = #{entity.currentLineContent},</if>
+                <if test="entity.isInvalid != null">is_invalid = #{entity.isInvalid},</if>
             </set>
-        WHERE remark_id = #{entity.id}
+        WHERE id = #{entity.id}
     </update>
 
 </mapper>

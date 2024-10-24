@@ -3,29 +3,26 @@ package io.github.iceofsummer.privateremark.util
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.suggested.startOffset
-import com.intellij.testFramework.utils.vfs.getPsiFile
+import io.github.iceofsummer.privateremark.bean.dto.RemarkDTO
 import io.github.iceofsummer.privateremark.bean.po.RemarkHolderPO
 import io.github.iceofsummer.privateremark.bean.po.RemarkPO
-import io.github.iceofsummer.privateremark.bean.po.RemarkVcs
-import io.github.iceofsummer.privateremark.svc.factory.VcsBridgeFactory
 import java.nio.file.Paths
 
 object RemarkUtils {
 
 
-    fun generateRemarkPO(content: String, lineNumber: Int, editor: Editor): RemarkPO {
+    fun generateRemark(content: String, lineNumber: Int, editor: Editor): RemarkDTO {
         val doc = editor.document
         val lineEnd = doc.getLineEndOffset(lineNumber)
 
         // TODO: allow non project file.
         val project = editor.project ?: throw IllegalStateException("Non project files")
         val basePath = project.basePath ?: throw IllegalStateException("Could not find project root path")
-        return RemarkPO(
+        return RemarkDTO(
             -1,
             toRelativePath(basePath, editor.virtualFile.path), // TODO: to relative path
             lineNumber,
@@ -37,7 +34,11 @@ object RemarkUtils {
         )
     }
 
-    fun tryResolveRemarkHolder(remarkId: Int, editor: Editor, lineNumber: Int): RemarkHolderPO? {
+    /**
+     * 尝试获取 [RemarkHolderPO]
+     * @return 如果能够获取，返回一个 [RemarkHolderPO.remarkId] 为 -1 的实例
+     */
+    fun tryResolveRemarkHolder(editor: Editor, lineNumber: Int): RemarkHolderPO? {
         val project = editor.project ?: return null
         val psi = PsiManager.getInstance(project).findFile(editor.virtualFile) ?: return null
         val provider = psi.viewProvider
@@ -48,7 +49,7 @@ object RemarkUtils {
 
         parent?.name?.let { name ->
             return RemarkHolderPO(
-                remarkId,
+                -1,
                 lineEnd - parent.startOffset - 1,
                 parent.javaClass.name
             )
