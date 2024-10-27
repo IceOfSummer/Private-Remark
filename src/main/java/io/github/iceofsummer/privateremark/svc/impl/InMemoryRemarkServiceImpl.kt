@@ -1,17 +1,11 @@
 package io.github.iceofsummer.privateremark.svc.impl
 
-import com.intellij.openapi.vfs.VirtualFile
 import io.github.iceofsummer.privateremark.bean.dto.RemarkDTO
 import io.github.iceofsummer.privateremark.bean.dto.RemarkInsertDTO
 import io.github.iceofsummer.privateremark.bean.dto.RemarkFixDTO
 import io.github.iceofsummer.privateremark.bean.dto.RemarkHolderDTO
-import io.github.iceofsummer.privateremark.bean.po.RemarkHolderPO
 import io.github.iceofsummer.privateremark.svc.RemarkServiceV2
 import java.util.Collections
-
-
-private val VirtualFile.hashKey: String
-    get() = url
 
 
 /**

@@ -15,10 +15,9 @@ import com.intellij.refactoring.suggested.startOffset
 import com.intellij.util.DocumentUtil
 import io.github.iceofsummer.privateremark.bean.dto.RemarkDTO
 import io.github.iceofsummer.privateremark.bean.dto.RemarkFixDTO
-import io.github.iceofsummer.privateremark.bean.po.RemarkPO
 import io.github.iceofsummer.privateremark.bridge.RemarkInlayListenerService
 import io.github.iceofsummer.privateremark.svc.RemarkServiceV2
-import io.github.iceofsummer.privateremark.svc.ServiceFactory
+import io.github.iceofsummer.privateremark.svc.factory.ServiceManager
 import io.github.iceofsummer.privateremark.ui.RemarkInlineInlayRenderer
 import io.github.iceofsummer.privateremark.util.RemarkUtils
 
@@ -34,6 +33,8 @@ private val VirtualFile.hashKey: String
  */
 object RemarkInlayCoordinator {
 
+
+    private val remarkService = ServiceManager.getService(RemarkServiceV2::class)
 
     private val inlays: InlayMap = mutableMapOf()
 
@@ -52,8 +53,7 @@ object RemarkInlayCoordinator {
                       uncheckedRemark: RemarkDTO
     ) {
         val validRemark = ensureRemarkValid(uncheckedRemark, editor) ?: let {
-            val service = ServiceFactory.getService(RemarkServiceV2::class)
-            service.markRemarkInvalid(uncheckedRemark.id)
+            remarkService.markRemarkInvalid(uncheckedRemark.id)
             return
         }
 
@@ -92,7 +92,6 @@ object RemarkInlayCoordinator {
         }
 
         return tryFixRemark(editor, uncheckedRemark) ?: let {
-            val remarkService = ServiceFactory.getService(RemarkServiceV2::class)
             remarkService.markRemarkInvalid(uncheckedRemark.id)
             return null
         }
@@ -105,7 +104,7 @@ object RemarkInlayCoordinator {
     private fun tryFixRemark(editor: Editor, invalidRemarkPO: RemarkDTO): RemarkDTO? {
         val project = editor.project ?: return null
         val psi = PsiManager.getInstance(project).findFile(editor.virtualFile) ?: return null
-        val remarkService = ServiceFactory.getService(RemarkServiceV2::class)
+
         val remarkHolderPO = remarkService.getRemarkHolderById(invalidRemarkPO.id)
 
         if (remarkHolderPO == null) {
@@ -148,11 +147,10 @@ object RemarkInlayCoordinator {
      */
     fun clearDisplayedRemarks(editor: Editor) {
         val removed = inlays.remove(editor.virtualFile.hashKey) ?: return
-        val remarkServiceV2 = ServiceFactory.getService(RemarkServiceV2::class)
 
         for (data in removed) {
             checkChanged(editor, data.first, data.second)?.let {
-                remarkServiceV2.fixRemark(data.first.id, it)
+                remarkService.fixRemark(data.first.id, it)
             }
         }
     }

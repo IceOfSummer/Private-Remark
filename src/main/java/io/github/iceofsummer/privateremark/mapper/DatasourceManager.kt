@@ -3,6 +3,7 @@ package io.github.iceofsummer.privateremark.mapper
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.github.iceofsummer.privateremark.mapper.common.DatabaseVersionManager
+import io.github.iceofsummer.privateremark.mapper.common.SqlSessionTemplate
 import io.github.iceofsummer.privateremark.mapper.inter.MetadataMapper
 import io.github.iceofsummer.privateremark.mapper.inter.RemarkHolderMapper
 import io.github.iceofsummer.privateremark.mapper.inter.RemarkMapper
@@ -28,7 +29,7 @@ object DatasourceManager {
     /**
      * 数据库连接。也许需要一个连接池来管理?
      */
-    private val datasourceMapping: MutableMap<String, SqlSessionFactory> = mutableMapOf()
+    private val datasourceMapping: MutableMap<String, DatasourceResource> = mutableMapOf()
 
     private fun createConfiguration(localDatabaseFilePath: String, dataSource: DataSource): Configuration {
 
@@ -61,7 +62,7 @@ object DatasourceManager {
     }
 
 
-    fun getSqlSessionFactory(localDatabaseFilePath: String): SqlSessionFactory {
+    private fun getOrCreateResource(localDatabaseFilePath: String): DatasourceResource {
         val file = File(localDatabaseFilePath)
         val dbFile: String = if (file.exists() && file.isDirectory) {
             "$localDatabaseFilePath/db.sqlite"
@@ -69,14 +70,27 @@ object DatasourceManager {
             localDatabaseFilePath
         }
 
-         return datasourceMapping.getOrPut(dbFile) {
+        return datasourceMapping.getOrPut(dbFile) {
             val dataSource = createDatasource(dbFile)
 
-             val sqlSessionFactory = SqlSessionFactoryBuilder().build(createConfiguration(dbFile, dataSource))
-             DatabaseVersionManager(sqlSessionFactory).doPatch()
-             return@getOrPut sqlSessionFactory
+            val sqlSessionFactory = SqlSessionFactoryBuilder().build(createConfiguration(dbFile, dataSource))
+            DatabaseVersionManager(sqlSessionFactory).doPatch()
+            return@getOrPut DatasourceResource(sqlSessionFactory, null)
         }
     }
 
+    fun getSqlSessionFactory(localDatabaseFilePath: String): SqlSessionFactory {
+        return getOrCreateResource(localDatabaseFilePath).sqlSessionFactory
+    }
+
+
+    fun getSqlSessionTemplate(localDatabaseFilePath: String): SqlSessionTemplate {
+        val resource = getOrCreateResource(localDatabaseFilePath)
+        resource.sqlSessionTemplate?.let { return it }
+
+        val sqlSessionTemplate = SqlSessionTemplate(resource.sqlSessionFactory)
+        resource.sqlSessionTemplate = sqlSessionTemplate
+        return sqlSessionTemplate
+    }
 
 }

@@ -4,12 +4,8 @@ import io.github.iceofsummer.privateremark.bean.dto.RemarkDTO
 import io.github.iceofsummer.privateremark.bean.dto.RemarkInsertDTO
 import io.github.iceofsummer.privateremark.bean.dto.RemarkFixDTO
 import io.github.iceofsummer.privateremark.bean.dto.RemarkHolderDTO
-import io.github.iceofsummer.privateremark.bean.po.RemarkHolderPO
 import io.github.iceofsummer.privateremark.bean.po.RemarkPO
-import io.github.iceofsummer.privateremark.svc.factory.MultiImplementOnRuntime
-import io.github.iceofsummer.privateremark.svc.factory.RemarkServiceFactory
 
-@MultiImplementOnRuntime(RemarkServiceFactory::class)
 interface RemarkServiceV2 {
 
     /**

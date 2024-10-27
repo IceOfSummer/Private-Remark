@@ -11,7 +11,7 @@ import io.github.iceofsummer.privateremark.bean.dto.RemarkHolderDTO
 import io.github.iceofsummer.privateremark.bean.dto.RemarkInsertDTO
 import io.github.iceofsummer.privateremark.core.RemarkInlayCoordinator
 import io.github.iceofsummer.privateremark.svc.RemarkServiceV2
-import io.github.iceofsummer.privateremark.svc.ServiceFactory
+import io.github.iceofsummer.privateremark.svc.factory.ServiceManager
 import io.github.iceofsummer.privateremark.ui.EditRemarkPopup
 import io.github.iceofsummer.privateremark.util.RemarkUtils
 import java.awt.event.ActionEvent
@@ -20,6 +20,8 @@ import java.awt.event.ActionEvent
  * 处理右键添加备注事件
  */
 class AddPrivateRemarkAction : AnAction() {
+
+    private val remarkServiceProxy = ServiceManager.getService(RemarkServiceV2::class)
 
     override fun getActionUpdateThread(): ActionUpdateThread {
         return ActionUpdateThread.BGT
@@ -41,7 +43,6 @@ class AddPrivateRemarkAction : AnAction() {
         }
 
         editRemarkPopup.saveBtn.addActionListener { _: ActionEvent? ->
-            val remarkService = ServiceFactory.getService(RemarkServiceV2::class)
 
             val lineNumber = editor.document.getLineNumber(editor.caretModel.offset)
             val dto = RemarkInsertDTO(
@@ -53,7 +54,7 @@ class AddPrivateRemarkAction : AnAction() {
                 null,
                 RemarkUtils.tryResolveRemarkHolder(editor, lineNumber)?.let { RemarkHolderDTO(it) }
             )
-            remarkService.saveRemark(dto)
+            remarkServiceProxy.saveRemark(dto)
             RemarkInlayCoordinator.displayRemark(editor, editor.document, dto.remark)
             balloon.hide()
         }

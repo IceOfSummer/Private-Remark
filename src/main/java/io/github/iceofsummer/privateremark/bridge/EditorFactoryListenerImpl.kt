@@ -4,7 +4,7 @@ import com.intellij.openapi.editor.event.EditorFactoryEvent
 import com.intellij.openapi.editor.event.EditorFactoryListener
 import io.github.iceofsummer.privateremark.core.RemarkInlayCoordinator
 import io.github.iceofsummer.privateremark.svc.RemarkServiceV2
-import io.github.iceofsummer.privateremark.svc.ServiceFactory
+import io.github.iceofsummer.privateremark.svc.factory.ServiceManager
 import io.github.iceofsummer.privateremark.util.RemarkUtils
 
 /**
@@ -12,9 +12,10 @@ import io.github.iceofsummer.privateremark.util.RemarkUtils
  */
 class EditorFactoryListenerImpl : EditorFactoryListener {
 
+    private val remarkService = ServiceManager.getService(RemarkServiceV2::class)
+
 
     override fun editorCreated(event: EditorFactoryEvent) {
-        val remarkService = ServiceFactory.getService(RemarkServiceV2::class)
         val editor = event.editor
         val file = editor.virtualFile
         val remarks = remarkService.resolveAllValidRemarks(RemarkUtils.toRelativePath(editor.project, file.path))

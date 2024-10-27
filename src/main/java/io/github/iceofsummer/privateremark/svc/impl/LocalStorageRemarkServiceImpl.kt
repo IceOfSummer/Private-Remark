@@ -8,83 +8,69 @@ import io.github.iceofsummer.privateremark.bean.po.RemarkHolderPO
 import io.github.iceofsummer.privateremark.bean.po.RemarkPO
 import io.github.iceofsummer.privateremark.mapper.inter.RemarkHolderMapper
 import io.github.iceofsummer.privateremark.mapper.inter.RemarkMapper
+import io.github.iceofsummer.privateremark.mapper.transaction.Transactional
 import io.github.iceofsummer.privateremark.svc.RemarkServiceV2
 import org.apache.ibatis.session.SqlSessionFactory
 
-class LocalStorageRemarkServiceImpl(private val sqlSessionFactory: SqlSessionFactory) : RemarkServiceV2 {
+class LocalStorageRemarkServiceImpl : RemarkServiceV2 {
 
+    private lateinit var remarkMapper: RemarkMapper
 
+    private lateinit var remarkHolderMapper: RemarkHolderMapper
+
+    fun setRemarkMapper(remarkMapper: RemarkMapper) {
+        this.remarkMapper = remarkMapper
+    }
+
+    fun setRemarkHolderMapper(remarkHolderMapper: RemarkHolderMapper) {
+        this.remarkHolderMapper = remarkHolderMapper
+    }
+
+    @Transactional
     override fun saveRemark(remarkInsertDTO: RemarkInsertDTO): Int {
-        sqlSessionFactory.openSession().use { sqlSession ->
-            val remarkMapper = sqlSession.getMapper(RemarkMapper::class.java)
-            remarkMapper.insert(remarkInsertDTO.remark)
-
-            val remarkHolderMapper = sqlSession.getMapper(RemarkHolderMapper::class.java)
-
-            remarkInsertDTO.holder ?.let { holder ->
-                holder.remarkId = remarkInsertDTO.remark.id
-                remarkHolderMapper.insert(holder)
-            }
-
-            sqlSession.commit()
-            return remarkInsertDTO.remark.id
+        remarkMapper.insert(remarkInsertDTO.remark)
+        remarkInsertDTO.holder ?.let { holder ->
+            holder.remarkId = remarkInsertDTO.remark.id
+            remarkHolderMapper.insert(holder)
         }
+
+        return remarkInsertDTO.remark.id
     }
 
     override fun resolveAllValidRemarks(path: String): List<RemarkDTO> {
-        sqlSessionFactory.openSession(true).use { sqlSession ->
-            val remarkMapper = sqlSession.getMapper(RemarkMapper::class.java)
-            return remarkMapper.selectAllByPath(path, false).map { RemarkDTO(it) }
-        }
+        return remarkMapper.selectAllByPath(path, false).map { RemarkDTO(it) }
     }
 
     override fun resolveAllInvalidRemarks(path: String): List<RemarkDTO> {
-        sqlSessionFactory.openSession(true).use { sqlSession ->
-            val remarkMapper = sqlSession.getMapper(RemarkMapper::class.java)
-            return remarkMapper.selectAllByPath(path, true).map { RemarkDTO(it) }
-        }
+        return remarkMapper.selectAllByPath(path, true).map { RemarkDTO(it) }
     }
 
     override fun getRemarkHolderById(id: Int): RemarkHolderDTO? {
-        sqlSessionFactory.openSession(true).use { sqlSession ->
-            val remarkHolderMapper = sqlSession.getMapper(RemarkHolderMapper::class.java)
-
-            return remarkHolderMapper.selectByRemarkId(id)?.let { RemarkHolderDTO(it) }
-        }
+        return remarkHolderMapper.selectByRemarkId(id)?.let { RemarkHolderDTO(it) }
     }
 
     override fun markRemarkInvalid(id: Int) {
-        sqlSessionFactory.openSession(true).use { sqlSession ->
-            val remarkMapper = sqlSession.getMapper(RemarkMapper::class.java)
-            remarkMapper.update(RemarkPO().apply {
-                this.id = id
-                this.isInvalid = true
-            })
-        }
+        remarkMapper.update(RemarkPO().apply {
+            this.id = id
+            this.isInvalid = true
+        })
     }
 
+    @Transactional
     override fun fixRemark(id: Int, remarkFixDTO: RemarkFixDTO) {
-        sqlSessionFactory.openSession().use { sqlSession ->
-            val remarkMapper = sqlSession.getMapper(RemarkMapper::class.java)
-            val remarkHolderMapper = sqlSession.getMapper(RemarkHolderMapper::class.java)
+        remarkMapper.update(RemarkPO().apply {
+            this.id = id
+            this.lineNumber = remarkFixDTO.lineNumber
+            this.currentLineContent = remarkFixDTO.lineContent
+        })
 
-            remarkMapper.update(RemarkPO().apply {
-                this.id = id
-                this.lineNumber = remarkFixDTO.lineNumber
-                this.currentLineContent = remarkFixDTO.lineContent
+        remarkFixDTO.offsetInParent?.let {
+            remarkHolderMapper.update(RemarkHolderPO().apply {
+                this.remarkId = id
+                this.offsetInParent = it
             })
-
-            remarkFixDTO.offsetInParent?.let {
-                remarkHolderMapper.update(RemarkHolderPO().apply {
-                    this.remarkId = id
-                    this.offsetInParent = it
-                })
-            }
-
-            sqlSession.commit()
         }
     }
-
 
 
 }
