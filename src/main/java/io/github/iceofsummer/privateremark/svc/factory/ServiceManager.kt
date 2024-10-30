@@ -6,9 +6,11 @@ import io.github.iceofsummer.privateremark.bridge.conf.IDESettingsStorage
 import io.github.iceofsummer.privateremark.mapper.DatasourceManager
 import io.github.iceofsummer.privateremark.mapper.inter.RemarkHolderMapper
 import io.github.iceofsummer.privateremark.mapper.inter.RemarkMapper
+import io.github.iceofsummer.privateremark.svc.PrivateRemarkProjectService
 import io.github.iceofsummer.privateremark.svc.RemarkServiceV2
 import io.github.iceofsummer.privateremark.svc.impl.InMemoryRemarkServiceImpl
 import io.github.iceofsummer.privateremark.svc.impl.LocalStorageRemarkServiceImpl
+import io.github.iceofsummer.privateremark.svc.impl.PrivateRemarkProjectServiceImpl
 import io.github.iceofsummer.privateremark.util.ObjectReference
 import java.lang.reflect.Proxy
 import kotlin.reflect.KClass
@@ -37,6 +39,7 @@ object ServiceManager {
     private fun loadOrReloadService() {
         val config = service<IDESettingsStorage>().state
         // TODO: 将初始化分散开.
+        // RemarkServiceV2
         instanceCache.compute(RemarkServiceV2::class) { k, v ->
             val instance = when (config.persistenceType) {
                 PersistenceType.IN_MEMORY -> InMemoryRemarkServiceImpl()
@@ -52,11 +55,13 @@ object ServiceManager {
 
             if (v == null) {
                 val reference = ObjectReference(instance)
-                return@compute ServiceHolder(reference, enhanceObj(reference, arrayOf(RemarkServiceV2::class.java)))
+                return@compute DynamicServiceHolder(reference, enhanceObj(reference, arrayOf(RemarkServiceV2::class.java)))
             }
-            v.reference.value = instance
+            v.setInstance(instance)
             return@compute v
         }
+        // PrivateRemarkProjectService
+        instanceCache.computeIfAbsent(PrivateRemarkProjectService::class) { SingletonServiceHolder(PrivateRemarkProjectServiceImpl()) }
     }
 
 
@@ -68,7 +73,7 @@ object ServiceManager {
     fun <T : Any> getService(clazz: KClass<T>): T {
         val serviceHolder = instanceCache[clazz] ?: throw IllegalArgumentException("No such service")
 
-        return serviceHolder.proxiedObject as T
+        return serviceHolder.getInstance() as T
     }
 
     /**

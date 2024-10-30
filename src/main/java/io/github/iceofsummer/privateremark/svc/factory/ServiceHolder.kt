@@ -1,17 +1,17 @@
 package io.github.iceofsummer.privateremark.svc.factory
 
-import io.github.iceofsummer.privateremark.util.ObjectReference
+interface ServiceHolder {
 
-/**
- * 服务的缓存
- */
-data class ServiceHolder(
     /**
-     * 具体实现的引用
+     * 获取对应的实例
      */
-    var reference: ObjectReference,
+    fun getInstance(): Any
+
     /**
-     * 服务的代理类
+     * 修改当前使用的实例(如果可以)
      */
-    var proxiedObject: Any
-)
+    fun setInstance(value: Any) {
+        // do nothing
+    }
+
+}

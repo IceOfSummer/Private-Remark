@@ -50,6 +50,7 @@ dependencies {
     implementation("org.mybatis:mybatis:3.5.16") {
         exclude(group = "org.slf4j", module = "slf4j-api")
     }
+    implementation("com.google.code.gson:gson:2.11.0")
 }
 
 tasks {

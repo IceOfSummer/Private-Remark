@@ -1,24 +1,34 @@
 package io.github.iceofsummer.privateremark.bridge.conf
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.ActionToolbarPosition
 import com.intellij.openapi.components.service
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.ui.DialogPanel
-import com.intellij.openapi.ui.LoadingDecorator
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.ui.validation.DialogValidation
+import com.intellij.ui.ToolbarDecorator
+import com.intellij.ui.components.JBLoadingPanel
 import com.intellij.ui.components.JBRadioButton
 import com.intellij.ui.dsl.builder.*
 import com.intellij.ui.layout.ComponentPredicate
+import com.intellij.ui.table.JBTable
+import io.github.iceofsummer.privateremark.bean.PrivateRemarkProject
 import io.github.iceofsummer.privateremark.bridge.bean.PersistenceType
+import java.awt.BorderLayout
 import java.io.File
+import javax.swing.table.AbstractTableModel
 
-class PrivateRemarkSettingsUI : Disposable {
+class PrivateRemarkSettingsUI(
+    private val loadProjects: (rootDirectory: String) -> MutableList<PrivateRemarkProject>
+) : Disposable {
 
 
     val settingState: SettingState
 
-    private var loadingSubStorageControl: LoadingDecorator? = null
+    var projects: MutableList<PrivateRemarkProject> = mutableListOf()
+
+    private var isProjectsModified: Boolean = false
 
     private var root: DialogPanel? = null
 
@@ -28,6 +38,18 @@ class PrivateRemarkSettingsUI : Disposable {
         settingState = SettingState(managedSettings, SettingState.DBStatus.NONE)
     }
 
+    fun isModified(): Boolean {
+        val panel = root ?: return false
+        val modified = panel.isModified()
+        if (modified && panel.validateAll().isEmpty()) {
+            return true
+        }
+        return isProjectsModified
+    }
+
+    fun resetModifiedState() {
+        isProjectsModified = false
+    }
 
     /**
      * 获取组件，第一次调用将会创建，后续调用将会获取上一次创建的实例
@@ -85,31 +107,13 @@ class PrivateRemarkSettingsUI : Disposable {
                 }
                 override fun invoke(): Boolean = managedSettings.persistenceType == PersistenceType.LOCAL_FILE_SYSTEM
             })
-//  TODO
-//            group("Sub Storage Root") {
-//
-//                row {
-//                    val child = DefaultListModel<String>().apply {}
-//
-//                    val list = JBList(child)
-//
-//                    val toolbarDecorator = ToolbarDecorator.createDecorator(list)
-//                        .setRemoveAction {
-//                            println(list.selectedIndex)
-//                        }
-//                        .setAddAction {
-//                            println("Add")
-//                        }
-//                        .disableUpDownActions()
-//                        .setToolbarPosition(ActionToolbarPosition.TOP)
-//
-//                    val panel = JBLoadingPanel(BorderLayout(), this@PrivateRemarkSettingsUI)
-//                    panel.add(toolbarDecorator.createPanel(), BorderLayout.NORTH)
-//
-//
-//                    cell(panel).align(AlignX.FILL)
-//                }
-//            }
+
+            group("Private Remark Projects") {
+
+                row {
+                    cell(createProjectTable()).align(AlignX.FILL)
+                }
+            }
         }
 
         currentRoot.registerValidators {}
@@ -117,18 +121,63 @@ class PrivateRemarkSettingsUI : Disposable {
         return currentRoot
     }
 
-    override fun dispose() {
-        loadingSubStorageControl?.stopLoading()
+
+
+    private fun createProjectTable(): JBLoadingPanel {
+        projects = loadProjects(settingState.managedSettings.localFileSystemDirectory)
+
+
+        val list = JBTable(object : AbstractTableModel() {
+            override fun getRowCount(): Int {
+                return projects.size
+            }
+
+            override fun getColumnCount(): Int {
+                return 2
+            }
+
+            override fun getValueAt(rowIndex: Int, columnIndex: Int): Any {
+                if (columnIndex == 0) {
+                    return projects[rowIndex].name
+                }
+                return projects[rowIndex].description
+            }
+
+            override fun getColumnName(column: Int): String {
+                return if (column == 0) {
+                    "Name"
+                } else {
+                    "Description"
+                }
+            }
+
+        })
+
+        val toolbarDecorator = ToolbarDecorator.createDecorator(list)
+            .setRemoveAction {
+                isProjectsModified = true
+                val jbTable = it.contextComponent as JBTable
+                projects.removeAt(jbTable.selectedRow)
+                jbTable.updateUI()
+            }
+            .setAddAction {
+                CreateOrUpdateProjectDialogUI({ project ->
+                    val jbTable = it.contextComponent as JBTable
+                    projects.add(project)
+                    isProjectsModified = true
+                    jbTable.updateUI()
+                }).show()
+            }
+            .disableUpDownActions()
+            .setToolbarPosition(ActionToolbarPosition.TOP)
+
+        val panel = JBLoadingPanel(BorderLayout(), this)
+        panel.add(toolbarDecorator.createPanel(), BorderLayout.NORTH)
+        return panel
     }
 
-//    inner class AddSubStorageRootAction : AnActionButtonRunnable {
-//        override fun run(t: AnActionButton?) {
-//            val descriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor()
-//            descriptor.title = "Select Child Directory"
-//            val file = FileChooser.chooseFile(descriptor, null, null)
-//
-//
-//        }
-//    }
+
+    override fun dispose() {}
+
 
 }
